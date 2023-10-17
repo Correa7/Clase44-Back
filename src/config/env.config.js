@@ -20,6 +20,7 @@ dotenv.config({
 module.exports = {
     port:process.env.PORT || 3000,
     mongoUrl: process.env.MONGO_URL,
+    dbName: process.env.DATABASE_NAME,
     secret: process.env.SECRET,
     persistence: process.env.PERSISTENCE,
     githubClientId: process.env.CLIENT_ID_GITHUB,

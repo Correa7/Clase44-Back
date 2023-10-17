@@ -43,10 +43,10 @@ const getProductById = async (req, res) =>{
 const addProduct = async (req, res) =>{
       try {
           const product = req.body
-          // product.owner = req.session.user.email 
+       
           const { title, description, price, thumbnail,code,stock,category, status } = req.body;
         if (!title || !description || !price || !code || !stock || !category) {
-            // creamos custom Error 
+          
             CustomError.createError({
                 name: "Product creation error",
                 cause: generateProductErrorInfo({ title, description, price,code,stock,category }),

@@ -73,7 +73,6 @@ const sendMailWhitAttachments = (req,res)=>{
                 console.log(error);
                 res.status(400).send({ message: "Error", payload: error })
             }
-            // console.log('Message send: %s', info.messageId);
             res.send({ message: "Success!!", payload: info })
         })
     }

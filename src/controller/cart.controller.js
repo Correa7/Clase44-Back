@@ -3,7 +3,6 @@ const cartService = require('../services/carts.service');
 const ProductService = require('../services/products.service.js');
 const TicketService = require('../services/tickets.service.js');
 const ticketService = new  TicketService(); 
-// const cartService =  new CartService(); 
 const productService = new ProductService();
 
 const getAll = async (req, res)=> {
@@ -151,7 +150,6 @@ const purchase = async (req, res)=> {
     try {
         const cid = req.params.cid
         const user= req.session.user.email
-        // const user = req.body.email
         const newTicket = await cartService.purchase(cid, user)
         await cartService.updateProductsCart(cid, newTicket.prodOutStock )
         await  ticketService.updateStock(newTicket.prodStock)

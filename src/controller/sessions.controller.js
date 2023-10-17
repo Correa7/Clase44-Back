@@ -35,7 +35,7 @@ const sessionGetLogin = (req, res) => {
     title: "Login",
   });
 }
-const sessionPostLogin = (req, res) => {
+const sessionPostLogin = async (req, res) => {
   if (!req.user) {
     return res.json({ error: "invalid credentials" });
   }
@@ -45,8 +45,10 @@ const sessionPostLogin = (req, res) => {
     firstName: req.user.firstName,
     lastName: req.user.lastName,
     rol: req.user.rol,
-    cart:req.user.cart  
+    cart:req.user.cart,
+    documents:req.user.documents,
   };
+
   let session = req.session.user
   let rol = req.session.user.rol
     const data={
@@ -73,7 +75,7 @@ const sessionGetProfile = (req, res) => {
 const sessionGetLogout = (req, res) => {
   req.session.destroy((err) => {
     if (err) res.send("Failed Logout");
-    return res.status(200).redirect(200,"/session/login");
+    return res.status(200).redirect("/session/login");
   });
 }
 const sessionGetFailedRegister = (req, res) => {

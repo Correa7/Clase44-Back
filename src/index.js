@@ -1,7 +1,7 @@
 const express = require('express'); 
 const app = express();
-const {port, mongoUrl, secret} = require('./config/env.config');
-const {__dirname} = require('./utils/dirname')
+const {port, mongoUrl, secret,dbName} = require('./config/env.config');
+
 
 //Mongo
 const DataBase= require('./utils/mongo');
@@ -21,7 +21,7 @@ app.use(session({
     store: MongoStore.create({
         mongoOptions:{useNewUrlParser:true,useUnifiedTopology:true},
         // ttl:'',
-        mongoUrl:mongoUrl+'ecommerce'
+        mongoUrl:mongoUrl+dbName
     }),
     secret:secret,
     resave:false,

@@ -2,6 +2,8 @@ const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const gitHubStrategy = require('passport-github2').Strategy
 const UserModel = require('../dao/mongo/models/users.model')
+const UserService = require('../services/users.service');
+const userService = new UserService();
 const cartService = require('../services/carts.service')
 const {createHash, isValidPass} = require ('../utils/bcrypt')
 const { githubClientId, githubSecret, githubCallBack} = require('../config/env.config')
@@ -17,16 +19,34 @@ const initializePassport = () => {
         async (req, username, password, done)=>{
             try{
                 let userFound = await UserModel.findOne({email:username})
+         
+
                 if (!userFound) {
                     console.log('User Not Found with username (email) ' + username);
                     return done(null, false);
-                  }
-                  if (!isValidPass(password, userFound.password)) {
+                }
+                if (!isValidPass(password, userFound.password)) {
                     console.log('Invalid Password');
                     return done(null, false);
-                  }
+                }
 
-                  return done(null, userFound);
+                let userNew = {
+                    firstName: userFound.firstName,
+                    lastName:userFound.lastName,
+                    email:userFound.email,
+                    age: userFound.age,
+                    password:userFound.password,
+                    rol: userFound.rol,
+                    cart:userFound.cart,
+                    documents: userFound.documents,
+                    last_connection: new Date(Date.now())
+                  
+                }  
+                await userService.updateOne(userFound._id.toString(), userNew)
+                
+                let result = await UserModel.findOne({email:username})
+
+                return done(null, result);
             }
             catch (err){
                 return done(err);
@@ -46,6 +66,7 @@ const initializePassport = () => {
                     console.log('User already exists')
                     done(null,false)
                 }
+
                 let userNew = {
                     firstName: userData.firstName,
                     lastName:userData.lastName || 'no-last-name',
@@ -53,7 +74,9 @@ const initializePassport = () => {
                     age: userData.age || 18,
                     password:createHash(userData.password),
                     rol: 'User',
-                    cart:newCart._id
+                    cart:newCart._id,
+                    documents: [],
+                    last_connection: ''
                   
                 }  
                 console.log(userNew)
@@ -82,13 +105,14 @@ const initializePassport = () => {
                 });
                 
                 const emails = await res.json();
-                const emailDetail = emails.find((email) => email.verified == true);
+                const emailDetail = emails.find((email) => email.verified == true); 
  
                 if (!emailDetail) {
                     return done(new Error('Cannot get a valid email for this user'));
                   }
                   profile.email = emailDetail.email;
-        
+                  let date = new Date(8.64e15).toString()
+                  console.log(date)
                   let user = await UserModel.findOne({ email: profile.email });
                   if (!user) {
                     let userCart = await cartService.addCart()
@@ -98,7 +122,9 @@ const initializePassport = () => {
                       lastName: profile._json.name ||'Avatar',
                       password: null,
                       rol: 'User',
-                      cart: userCart._id
+                      cart: userCart._id,
+                      documents:[],
+                      last_connection: date
                     };
                     let userCreated = await UserModel.create(newUser);
                     console.log('User registration succesful');
@@ -118,7 +144,7 @@ const initializePassport = () => {
         )
     ),
     passport.serializeUser((user,done)=>{
-        done(null,user._id)
+        done(null, user._id)
     }), 
     passport.deserializeUser(async (id,done)=>{
         let user= await UserModel.findById(id)

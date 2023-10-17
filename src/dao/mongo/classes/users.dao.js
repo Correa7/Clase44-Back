@@ -25,7 +25,9 @@ class UserClass{
           email:data.email,
           age:data.age,
           password:data.password,
-          rol:data.rol
+          rol:data.rol,
+          documents:data.documents,
+          last_connection: data.last_connection
       }
         const userUpDate = await UserModel.updateOne({ _id: _id }, user);
         return userUpDate;
