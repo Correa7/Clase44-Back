@@ -45,7 +45,7 @@ describe('Coderhouse Commission 44705 project Test', ()=>{
               password: '123456'
           }
          
-          const {statusCode,ok,info} = await requester.post('/session/login').send(user)
+          const {statusCode,ok,info} = await requester.post('/session/login').send(user) 
        
          expect(statusCode).is.equal(200)
          expect(ok).to.be.ok.and.equal(true)
@@ -158,22 +158,5 @@ describe('Coderhouse Commission 44705 project Test', ()=>{
       
 
     })
-
-
-    // describe('Test session, register and login', () =>{
-
-    //     it('Registrar un usuario: Debe registrar correctamente al usuario', async function () {
-           
-
-    //         const{statusCode, _body} = await requester.post('/session/register').send(this.mockUser)
-           
-    //         console.log(_body)
-    //         console.log('################################################')
-    //         expect(statusCode).to.be.equal(200)
-
-    //     })  
-       
-    // })
-
     
 })

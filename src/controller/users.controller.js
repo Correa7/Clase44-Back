@@ -52,30 +52,38 @@ const postUser = (req, res) => {
 } 
 
 const rolUserById = async (req,res)=>{
-    // Modificar para que solo pueda ser premium si:
-    // el usuario tiene cargado en document:
-    // Identificación, Comprobante de domicilio, Comprobante de estado de cuenta
-
     try{
         let _id = req.params.uid
         const user = await  Service.getById(_id)
-        if(user.rol === 'User'){
-            user.rol= 'Premium' 
-            await Service.updateOne(_id,user) 
-            return res.status(201).json({
-                status: 'success',
-                msg: 'User update rol: Premium',
-                
-            });
- 
-        }else{
-            user.rol= 'User'
-            await Service.updateOne(_id,user) 
-            return res.status(201).json({
-                status: 'success',
-                msg: 'User update rol: User',
-            });
+        if(!user){
+            res.status(400).send(`User with id: ${uid} Not found or non-existent :(`)
         }
+        else{
+            let address = user.documents.some(e => e.name === 'address')
+            let account= user.documents.some(e => e.name === 'accountStatus')
+            let identification = user.documents.some(e => e.name === 'identification')
+            if(address && account && identification){
+                
+                user.rol= 'Premium' 
+                await user.save() 
+                return res.status(201).json({
+                status: 'success',
+                message: 'User update rol: Premium',
+                payload: user
+                });s
+            }
+            else{
+                user.rol= 'User' 
+                await user.save() 
+                return res.status(400).send({
+                    message:'You must have the following documents uploaded to be Premium: address, identification, account status', 
+                    Rol: user.rol,
+                    documents: user.documents,
+                })
+            }
+
+        }
+       
     }
     catch (e) {
         console.log(e);
@@ -127,29 +135,58 @@ const putUserById = async (req, res) => {
     }
 }
 const userDocuments = async (req,res) => {
-    // Crear un endpoint en el router de usuarios api/users/:uid/documents 
-    // con el método POST que permita subir uno o múltiples archivos. 
-    // Utilizar el middleware de Multer para poder recibir los documentos que se carguen 
-    // y actualizar en el usuario su status para hacer saber que ya subió algún documento en particular.
     try{
         const uid = req.params.uid;
         const user= await  Service.getById(uid)
-       const documents=[]
+        if(!user){
+            res.status(400).send(`User with id: ${uid} Not found or non-existent :(`)
+        }
+        const sentDocuments=[]
         const file =req.files
         for(const e in file){
-            if(file[e][0].fieldname === 'image'){
+            if(file[e][0].fieldname === 'imageProfile'){
                 continue
             }
             else{
                 let name=file[e][0].fieldname
                 let reference=file[e][0].path
-                documents.push({name:name,reference:reference})
+                sentDocuments.push({name:name,reference:reference})
+                
+                if(user.documents.some(e=>e.name === name)){
+                    continue
+                }
+                else{
+                    user.documents.push({name:name,reference:reference})
+                }
             }
         }
-       console.log(documents)
-   
+         await user.save()
+         console.log(user)
+        return res.status(200).send({message:'Route :api/users/:uid/document post method', payload: user.documents})
+    }
+    catch(e){
+        console.log(e);
+        return res.status(500).json({
+            status: 'error',
+            msg: 'something went wrong :(',
+            data: {},
+        });
+    }
 
-        return res.status(201).send('Route :api/users/:uid/document')
+}
+const deleteDocuments = async (req,res) => {
+    try{
+        const uid = req.params.uid;
+        const user= await  Service.getById(uid)
+        if(!user){
+            res.status(400).send(`User with id: ${uid} Not found or non-existent :(`)
+        }
+        
+        user.documents= []
+        await user.save()
+         console.log(user)
+        
+        return res.status(200).send('Route :api/users/:uid/document delete method')
     }
     catch(e){
         console.log(e);
@@ -169,5 +206,6 @@ module.exports = {
     delUserById,
     putUserById,
     rolUserById,
-    userDocuments
+    userDocuments,
+    deleteDocuments 
 }

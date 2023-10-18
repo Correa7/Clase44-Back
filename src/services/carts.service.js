@@ -66,7 +66,7 @@ class CartService {
             let cart = await CartMethods.findOne(cartId);
             console.log(cart)
             let existingProduct = cart.products.find((pId) => pId.idProduct.equals(productId));
-      
+       
             if (existingProduct) { 
               existingProduct.quantity += 1;
             } else {
@@ -75,7 +75,7 @@ class CartService {
             await cart.save();
             console.log(`Product ${productId} was added successfully to cart ${cartId}`);
       }
- 
+  
     } catch (error) {
       throw new Error(error.message);
     }

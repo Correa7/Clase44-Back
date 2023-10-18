@@ -7,7 +7,8 @@ const{ getUser,
   postUser,
   delUserById,
   putUserById,
-  userDocuments} = require ('../controller/users.controller');
+  userDocuments,
+  deleteDocuments } = require ('../controller/users.controller');
   const {usersUploader} = require('../utils/multer')
 
 const router = new express.Router();
@@ -20,8 +21,9 @@ router.post('/', passport.authenticate('register-passport',{failureRedirect:'/se
 router.delete('/:uid',goToLogin, isAdmin, delUserById);
 router.put('/:uid',goToLogin, isAdmin, putUserById); 
 router.put('/premium/:uid',rolUserById );
+router.post('/:uid/documents',goToLogin, usersUploader(), userDocuments); 
+router.delete('/:uid/documents',goToLogin, deleteDocuments); 
 
-router.post('/:uid/documents',usersUploader(), userDocuments) 
  
 module.exports = router;
 

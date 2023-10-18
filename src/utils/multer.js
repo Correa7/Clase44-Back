@@ -32,15 +32,13 @@ function usersUploader(){
     const multerConfig = multer.diskStorage({
 
         destination: function (req, files, cb){
+          
             let folder= ''
-            for (const i in files) {
-                if (MiMETYPES.includes( files[i] )){
-                    folder = 'profiles' 
-                }
-                else{
-                    folder= 'documents' 
-                }
-              }
+            if (files.fieldname === 'imageProfile') {
+                folder = 'profiles' 
+            } else {
+                folder= 'documents' 
+            }
             cb(null,`src/public/folders/users/${folder}`);
         },
         filename: function (req, file, cb){
@@ -53,7 +51,7 @@ function usersUploader(){
     const result= multer({storage:multerConfig}).fields(
         [
         {
-        name: 'image', maxCount: 1
+        name: 'imageProfile', maxCount: 1
         }, 
         {
             name: 'identification', maxCount: 1
@@ -62,7 +60,7 @@ function usersUploader(){
             name: 'address', maxCount: 1
         },
         {
-            name: 'account status', maxCount: 1
+            name: 'accountStatus', maxCount: 1
         }
     ])
 

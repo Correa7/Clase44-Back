@@ -58,7 +58,8 @@ const userSchema= new mongoose.Schema({
         reference: {
           type: String,
           required: false
-           }
+           },
+        _id: false 
        }] 
 },{ versionKey: false })
 
